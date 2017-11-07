@@ -6,7 +6,7 @@ This repository contains code to run the Auction game. It includes a game manage
 Each player starts out with 100 unit of money. There are <i>m</i> players, <i>k</i> artists, and <i>n</i> number of items that must be obtained. The server will generate one thousand items randomly from the group of artists. A player has to accumulate <i>n</i> of a type to win. The winning bid in each round is given by the player with highest bid. If multiple players offered the same highest bid, the winner will be the first player who sends the offer. Any invalid bid, such as insufficient fund, will cause the player to lose the game. All players will be told who won the bid and what they paid.
 
 Here is an example (from course website):
-Suppose there are two players (p = 2), four artists (k = 4), and the number of items that must be obtained is 3 (n = 3). 
+Suppose there are two players (m = 2), four artists (k = 4), and the number of items that must be obtained is 3 (n = 3). 
 Suppose that the first several items are: t2 t3 t4 t4 t4 t2 t3 t4 t2 t4 t2 t2 t2 t3 t4.
 
 Consider the following history: 
