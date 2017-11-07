@@ -1,0 +1,67 @@
+import socket
+import json
+from datetime import datetime
+from multiprocessing import Pool
+
+
+def recv_from_client(socket, player):
+    data = socket.recv(Server.DATA_SIZE).decode('utf-8')
+    player_bid = dict()
+    player_bid['player'] = player
+    player_bid['bid'] = json.loads(data)
+    player_bid['timestamp'] = datetime.now()
+    return player_bid
+
+class Server():
+
+    DATA_SIZE = 8192
+
+    def __init__(self, host, port, num_player=2):
+        """
+        :param host: Server host
+        :param port: Server port
+        """
+
+        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        self.socket.bind((host, port))
+        self.player_sockets = [None] * num_player
+        self.socket.listen(num_player)
+
+        self.num_player = len(self.player_sockets)
+        self.pool = Pool(processes=self.num_player)
+
+    def establish_connection(self):
+        """Establishes connection with players"""
+        for i in range(self.num_player):
+            self.player_sockets[i], _ = self.socket.accept()
+        res = map(self.receive, range(self.num_player))
+        return res
+
+    def update_all_clients(self, data):
+        """Updates all players by sending data to client sockets"""
+
+        for sck in self.player_sockets:
+            sck.sendall(data)
+
+    def receive(self, player):
+        """Receive a bid from a specific player"""
+        return self.player_sockets[player].recv(self.DATA_SIZE)
+
+    def receive_any(self):
+        """Receive a bid from any player"""
+        bids = []
+        for player in range(self.num_player):
+            r = self.pool.apply_async(recv_from_client, (self.player_sockets[player], player))
+            bids.append(r)
+
+        bids = [b.get() for b in bids]
+
+        return bids
+
+    def close(self):
+        """Close server"""
+        self.socket.close()
+
+    def __del__(self):
+        self.close()
