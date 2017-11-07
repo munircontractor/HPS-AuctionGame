@@ -3,7 +3,7 @@
 This repository contains code to run the Auction game. It includes a game manager, a server, and a client. The game allows more than two players to play in the same session.
 
 ## Rules
-Each players start out with 100 unit of money. There are <i>m</i> players, <i>k</i> artists, and <i>n</i> number of items that must be obtained. The server will generate one thousand items randomly from the group of artists. A player has to accumulate <i>n</i> of a type to win. The winning bid in each round is given by the player with highest bid. If multiple players offered the same highest bid, the winner will be the first player who sends the offer. Any invalid bid, such as insuffient fund, will cause the player to lose the game. All players will be told who won the bid and what they paid.
+Each player starts out with 100 unit of money. There are <i>m</i> players, <i>k</i> artists, and <i>n</i> number of items that must be obtained. The server will generate one thousand items randomly from the group of artists. A player has to accumulate <i>n</i> of a type to win. The winning bid in each round is given by the player with highest bid. If multiple players offered the same highest bid, the winner will be the first player who sends the offer. Any invalid bid, such as insufficient fund, will cause the player to lose the game. All players will be told who won the bid and what they paid.
 
 Here is an example (from course website):
 Suppose there are two players (p = 2), four artists (k = 4), and the number of items that must be obtained is 3 (n = 3). 
@@ -23,11 +23,11 @@ player 0 wins t4 with 8 and wins the game
 
 ## Game State
 ```
-'finished' : whether the game has finished
-'auction_round' : current auction round
-'bid_item' : auction item in this round
-'bid_winner' : winner in this round
-'winning_bid' : winning bid in this round
+'finished': whether the game has finished
+'auction_round': current auction round
+'bid_item': auction item in this round
+'bid_winner': winner in this round
+'winning_bid': winning bid in this round
 ```
 
 ## Client
