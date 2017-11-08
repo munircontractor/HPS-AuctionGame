@@ -31,7 +31,8 @@ player 0 wins t4 with 8 and wins the game
 ```
 
 ## Client
-A sample_client.py has been provided as reference.
+A sample_client.py has been provided as reference. Client will receive the following initial states from server.
+
 ```
 'artists_types': number of artists
 'required_count': number of items for artist to win
