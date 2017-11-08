@@ -183,7 +183,12 @@ class AuctionManager:
                                             .format(self.players[max_bidder]['name']))
 
             game_state['bid_item'] = self.auction_items[auction_round]
-            game_state['bid_winner'] = self.players[max_bidder]['name']
+
+            if max_bidder is not None:
+                game_state['bid_winner'] = str(self.players[max_bidder]['name'])
+            else:
+                game_state['bid_winner'] = None
+
             game_state['winning_bid'] = max_bid['amount']
             game_state['auction_round'] = auction_round
 

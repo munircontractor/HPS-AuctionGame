@@ -1,6 +1,7 @@
 import atexit
 
 from client import Client
+import time
 import random
 
 def check_game_status(state):
@@ -20,8 +21,7 @@ def check_game_status(state):
 def calculate_bid(game_state):
 
     """Insert algorithm here"""
-
-    return random.randrange(0, 10)
+    return random.randrange(0, 5)
 
 if __name__ == '__main__':
 
