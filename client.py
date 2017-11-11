@@ -22,6 +22,7 @@ class Client():
         self.required_count = init_status['required_count']
         self.auction_items = init_status['auction_items']
         self.init_wealth = init_status['init_wealth']
+        self.player_count = init_status['player_count']
 
     def close(self):
         self.socket.close()
@@ -65,6 +66,7 @@ class Client():
             'required_count': number of items for artist to win
             'auction_items': list of auction items
             'init_wealth': initial wealth per player
+            'player_count': number of players in the auction
         """
 
         return json.loads(self.socket.recv(self.DATA_SIZE).decode('utf-8'))

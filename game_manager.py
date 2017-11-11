@@ -97,7 +97,8 @@ class AuctionManager:
             bytes(json.dumps({'artists_types': self.__artists_types,
                               'required_count': self.__required_count,
                               'init_wealth': self.__init_wealth,
-                              'auction_items': self.auction_items}), 'utf-8'), self.get_valid_players())
+                              'auction_items': self.auction_items,
+                              'player_count': self.__player_count}), 'utf-8'), self.get_valid_players())
 
         auction_round = 0
 
