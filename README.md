@@ -39,6 +39,7 @@ A sample_client.py has been provided as reference. Client will receive the follo
 'required_count': number of items for artist to win
 'auction_items': list of auction items
 'init_wealth': initial wealth per player
+'player_count': number of players in the auction
 ```
 
 ## Get Started
