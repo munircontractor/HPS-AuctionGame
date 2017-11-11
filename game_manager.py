@@ -8,7 +8,9 @@ class Player:
     def __init__(self, name, wealth, time):
         self._dict = {'name': name,
                       'wealth': wealth,
-                      'remain_time': time}
+                      'remain_time': time,
+                      'valid': True,
+                      'reason': ""}
 
         self.prev_time = None
 
@@ -36,6 +38,7 @@ class AuctionManager:
         """
 
         self.players = []
+
         for idx in range(num_players):
             self.players.append(Player(idx, player_wealth, game_time))
 
@@ -66,6 +69,7 @@ class AuctionManager:
                              'bid_item': None,
                              'bid_winner': None,
                              'auction_round': 0,
+                             'remain_players': num_players,
                              }
 
         for idx in range(len(self.players)):
@@ -93,19 +97,20 @@ class AuctionManager:
             bytes(json.dumps({'artists_types': self.__artists_types,
                               'required_count': self.__required_count,
                               'init_wealth': self.__init_wealth,
-                              'auction_items': self.auction_items}), 'utf-8'))
+                              'auction_items': self.auction_items}), 'utf-8'), self.get_valid_players())
 
         auction_round = 0
 
-        while True:
-            self.reset_players_timer() # start timer
+        while self.__game_state['remain_players'] > 0:
+            # self.reset_players_timer() # start timer
+            remain_times = self.get_player_remain_time()
 
-            next_bids = self.__server.receive_any()
+            next_bids = self.__server.receive_any(remain_times)
 
             game_state = self.handle_bids(auction_round, next_bids)
             game_state_bytes = bytes(json.dumps(game_state), 'utf-8')
 
-            self.__server.update_all_clients(game_state_bytes)
+            self.__server.update_all_clients(game_state_bytes, self.get_valid_players())
 
             if game_state['finished']:
                 self.close()
@@ -135,24 +140,30 @@ class AuctionManager:
             max_bid['bidder'] = None
             max_bid['received_time'] = None
 
-            current_time = datetime.now()
-
             bid_item = self.auction_items[auction_round]
 
             for idx in range(len(bids)):
                 player_id = bids[idx]['player']
-                received_time = bids[idx]['timestamp']
+
+                if self.players[player_id]['valid'] is False: # skip invalid players
+                    continue
+
+                elif bids[idx]['timeout'] is True: # player was timed out during bidding
+                    self.players[player_id]['valid'] = False
+                    self.players[player_id]['remain_time'] = -1
+                    print(('Player {} was timed out on round {}.'
+                           .format(self.players[player_id]['name'], auction_round)))
+
+                    continue
+
+                start_time = bids[idx]['start_time']
+                received_time = bids[idx]['received_time']
                 bid_summary = bids[idx]['bid']
 
                 # handle timestamp checking
-                self.players[player_id]['remain_time'] -= (current_time - self.players[player_id].prev_time).total_seconds()
+                self.players[player_id]['remain_time'] -= (received_time - start_time).total_seconds()
 
-                if self.players[player_id]['remain_time'] < 0:
-                  game_state['finished'] = True
-                  game_state['winner'] = ('Everyone except {}'.format(self.players[player_id]['name']))
-                  game_state['reason'] = ('Player {} has timed out.'.format(self.players[player_id]['name']))
-
-                elif self.players[player_id]['wealth'] - bid_summary['bid_amount'] >= 0:
+                if self.players[player_id]['wealth'] - bid_summary['bid_amount'] >= 0:
 
                     bid_amt = bid_summary['bid_amount']
 
@@ -165,9 +176,9 @@ class AuctionManager:
 
                 else:
                     # invalid bid from player
-                    game_state['finished'] = True
-                    game_state['winner'] = ('Everyone except {}'.format(self.players[player_id]['name']))
-                    game_state['reason'] = ('Player {} made an invalid bid.'.format(self.players[player_id]['name']))
+                    self.players[player_id]['valid'] = False
+                    print('Player {} made an invalid bid on round {}.'
+                          .format(self.players[player_id]['name'], auction_round))
 
             max_bidder = max_bid['bidder']
 
@@ -192,9 +203,20 @@ class AuctionManager:
             game_state['winning_bid'] = max_bid['amount']
             game_state['auction_round'] = auction_round
 
+            remain_player_count = 0
             for idx in range(len(self.players)):
                 player_name = self.get_player_name(idx)
                 game_state[player_name] = self.players[idx]._dict
+
+                if self.players[idx]['valid'] is True:
+                    remain_player_count += 1
+
+            game_state['remain_players'] = remain_player_count
+
+            if remain_player_count == 0:
+                # game ends
+                game_state['finished'] = True
+                game_state['reason'] = 'No valid players remaining'
 
             self.__game_state.update(game_state)
             self.__over = game_state['finished']
@@ -202,9 +224,26 @@ class AuctionManager:
 
         return game_state
 
-    def reset_players_timer(self):
+    def get_player_remain_time(self):
+        remain_times = dict()
+
         for idx in range(len(self.players)):
-            self.players[idx].prev_time = datetime.now()
+            player_remain_time = self.players[idx]['remain_time']
+
+            if player_remain_time > 0 and self.players[idx]['valid'] is True:
+                remain_times[idx] = player_remain_time
+            else:
+                remain_times[idx] = 0
+
+        return remain_times
+
+    def get_valid_players(self):
+        valid_players = dict()
+
+        for idx in range(len(self.players)):
+            valid_players[idx] = self.players[idx]['valid']
+
+        return valid_players
 
     def print_status(self, state, auction_round):
         """Prints game status after each round"""
@@ -217,7 +256,14 @@ class AuctionManager:
 
         self.log('Remaining time:')
         for idx in range(len(self.players)):
-            self.log('\t{} has {} seconds remaining'.format(self.players[idx]['name'], self.players[idx]['remain_time']))
+            if self.players[idx]['valid']:
+                self.log('\t{} has {} seconds remaining'
+                         .format(self.players[idx]['name'], self.players[idx]['remain_time']))
+
+        self.log('Remaining wealth:')
+        for idx in range(len(self.players)):
+            if self.players[idx]['valid']:
+                self.log('\t{} has {} dollars remaining'.format(self.players[idx]['name'], self.players[idx]['wealth']))
 
         self.log('------------------------------------\n')
 

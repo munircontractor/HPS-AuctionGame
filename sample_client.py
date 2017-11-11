@@ -21,7 +21,8 @@ def check_game_status(state):
 def calculate_bid(game_state):
 
     """Insert algorithm here"""
-    return random.randrange(0, 5)
+    time.sleep(random.randrange(1, 3))
+    return random.randrange(1, 10)
 
 if __name__ == '__main__':
 
@@ -47,4 +48,3 @@ if __name__ == '__main__':
         check_game_status(game_state)
 
         current_round += 1
-

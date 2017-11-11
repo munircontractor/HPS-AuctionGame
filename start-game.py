@@ -18,7 +18,7 @@ from game_manager import AuctionManager
 
 if __name__ == '__main__':
     try:
-        opts, args = getopt(sys.argv[1:], 'a:m:p:t')
+        opts, args = getopt(sys.argv[1:], 'a:m:p:t:')
 
     except GetoptError:
         sys.stderr.write('Error: parsing arguments\n')
@@ -36,7 +36,7 @@ if __name__ == '__main__':
         elif o == '-p':
             port = int(a)
         elif o == '-t':
-            time = a
+            time = int(a)
 
     try:
         player_count = int(args[0])

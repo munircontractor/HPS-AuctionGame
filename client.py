@@ -51,6 +51,7 @@ class Client():
             'bid_item': auction item
             'bid_winner': winner of this round's bidding
             'auction_round': round number or auction item index
+            'remain_players': number of remaining players
         """
 
         return json.loads(self.socket.recv(self.DATA_SIZE).decode('utf-8'))
