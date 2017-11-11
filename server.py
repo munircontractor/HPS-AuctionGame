@@ -23,6 +23,9 @@ def recv_from_client(socket, player, remain_time):
 
     return player_bid
 
+def send_update(socket, data):
+    socket.sendall(data)
+
 class Server():
 
     DATA_SIZE = 8192
@@ -54,8 +57,7 @@ class Server():
 
         for idx in range(len(self.player_sockets)):
             if valid_players[idx] is True:
-                sck = self.player_sockets[idx]
-                sck.sendall(data)
+                self.pool.apply_async(send_update, (self.player_sockets[idx], data))
 
     def receive(self, player):
         """Receive a bid from a specific player"""
