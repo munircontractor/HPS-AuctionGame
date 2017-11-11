@@ -28,6 +28,7 @@ player 0 wins t4 with 8 and wins the game
 'bid_item': auction item in this round
 'bid_winner': winner in this round
 'winning_bid': winning bid in this round
+'remain_players': number of remaining players
 ```
 
 ## Client
