@@ -185,7 +185,7 @@ class AuctionManager:
 
             if max_bid['amount'] > 0 and max_bidder is not None:
 
-                self.players[max_bidder]['wealth'] -= bid_summary['bid_amount']
+                self.players[max_bidder]['wealth'] -= max_bid['amount']
                 self.bid_winners[bid_item][max_bidder] += 1
 
                 if self.bid_winners[bid_item][max_bidder] >= self.__required_count:
