@@ -21,7 +21,8 @@ def check_game_status(state):
 def calculate_bid(game_state):
 
     """Insert algorithm here"""
-    return random.randrange(0, 5)
+    # return random.randrange(0, 5)
+    return 0
 
 if __name__ == '__main__':
 
