@@ -1,4 +1,4 @@
-import socket
+import socket as sck
 import json
 from datetime import datetime
 from multiprocessing import Pool
@@ -18,7 +18,7 @@ def recv_from_client(socket, player, remain_time):
         player_bid['bid'] = json.loads(data)
         player_bid['received_time'] = datetime.now()
 
-    except socket.timeout:
+    except sck.timeout:
         player_bid['timeout'] = True
 
     return player_bid
@@ -38,8 +38,8 @@ class Server():
         :param port: Server port
         """
 
-        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        self.socket = sck.socket(sck.AF_INET, sck.SOCK_STREAM)
+        self.socket.setsockopt(sck.SOL_SOCKET, sck.SO_REUSEADDR, 1)
         self.socket.bind((host, port))
         self.player_sockets = [None] * num_player
         self.socket.listen(num_player)
